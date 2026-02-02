@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WinZone - Ultimate Admin Control Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sidebar-width: 280px;
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --bg-light: #f8fafc;
+            --bg-card: #ffffff;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-light);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            color: var(--text-dark);
+        }
+
+        /* ========== SIDEBAR ========== */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-lg);
+            z-index: 100;
+            position: relative;
+        }
+
+        .brand {
+            padding: 30px 25px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .brand h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .brand .crown {
+            color: #fbbf24;
+            filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.5));
+        }
+
+        .nav-section {
+            padding: 15px 0;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .nav-section-title {
+            padding: 20px 25px 10px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.6;
+        }
+
+        .nav-item {
+            padding: 14px 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            opacity: 0.85;
+            position: relative;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: white;
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            opacity: 1;
+        }
+
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.15);
+            opacity: 1;
+            font-weight: 600;
+        }
+
+        .nav-item.active::before {
+            transform: scaleY(1);
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .logout-btn {
+            margin: 20px;
+            padding: 14px;
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid rgba(239, 68, 68, 0.5);
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* ========== MAIN CONTENT ========== */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .top-bar {
+            height: 80px;
+            background: var(--bg-card);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 40px;
+            z-index: 50;
+        }
+
+        .page-title-section h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .page-title-section p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .top-bar-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .notification-badge {
+            position: relative;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            background: var(--bg-light);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .notification-badge:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .badge-dot {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            background: var(--danger);
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            background: var(--bg-light);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .user-profile:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: white;
+        }
+
+        .page-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px 40px;
+        }
+
+        /* ========== CARDS GRID ========== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-content h4 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .stat-content h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-dark);
+        }
+
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            margin-top: 8px;
+        }
+
+        .trend-up {
+            color: var(--success);
+        }
+
+        .trend-down {
+            color: var(--danger);
+        }
+
+        /* ========== RTP CONTROL ========== */
+        .rtp-control-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            padding: 30px;
+            color: white;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .rtp-control-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .rtp-sliders {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+        }
+
+        .slider-group {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .slider-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+        }
+
+        .slider-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        /* ========== TABLES ========== */
+        .table-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            box-shadow: var(--shadow-sm);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .table-header h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            padding: 10px 40px 10px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            width: 280px;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .search-box i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: var(--bg-light);
+        }
+
+        th {
+            padding: 16px;
+            text-align: left;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.95rem;
+        }
+
+        tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: var(--bg-light);
+        }
+
+        /* ========== BUTTONS ========== */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: inherit;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-info {
+            background: var(--info);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+
+        /* ========== BADGES ========== */
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        /* ========== MODALS ========== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(8px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: 20px;
+            width: 500px;
+            max-width: 90%;
+            max-height: 90vh;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            padding: 25px 30px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .close-modal {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: var(--bg-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+            color: var(--text-muted);
+        }
+
+        .close-modal:hover {
+            background: var(--danger);
+            color: white;
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 30px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .input-group {
+            margin-bottom: 24px;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
+
+        .input-group input,
+        .input-group textarea,
+        .input-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .modal-footer {
+            padding: 20px 30px;
+            background: var(--bg-light);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        /* ========== SECTION VISIBILITY ========== */
+        .section {
+            display: none;
+            animation: fadeInUp 0.4s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ========== TIMER CARD ========== */
+        .timer-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 16px;
+            padding: 30px;
+            color: white;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .timer-display {
+            font-size: 4rem;
+            font-weight: 800;
+            margin: 15px 0;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: fixed;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .top-bar {
+                padding: 0 20px;
+            }
+
+            .page-content {
+                padding: 20px;
+            }
+        }
+
+        /* ========== LOADING SPINNER ========== */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* --- USER PROFILE MODAL STYLES --- */
+        #user-profile-modal .modal-content {
+            width: 800px;
+            background-color: #f8f9fc;
+        }
+
+        .profile-header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        .profile-avatar-large {
+            width: 70px;
+            height: 70px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .profile-info h2 {
+            margin: 0;
+            color: #333;
+        }
+
+        .profile-info p {
+            margin: 5px 0 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .profile-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .p-stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e3e6f0;
+        }
+
+        .p-stat-label {
+            font-size: 0.8rem;
+            color: #888;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .p-stat-value {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #333;
+            margin-top: 5px;
+        }
+
+        .profile-grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .profile-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e3e6f0;
+        }
+
+        .profile-section h4 {
+            margin-top: 0;
+            color: var(--primary);
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed #eee;
+            font-size: 0.95rem;
+        }
+
+        .detail-row span:first-child {
+            color: #888;
+            font-weight: 600;
+        }
+
+        .detail-row span:last-child {
+            color: #333;
+            font-weight: 700;
+            text-align: right;
+        }
+
+        .action-buttons-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="brand">
+            <h1><i class="fas fa-crown crown"></i> WinZone</h1>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Main Menu</div>
+            <div class="nav-item active" onclick="showSection('dashboard', this)">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </div>
+            <div class="nav-item" onclick="showSection('users', this)">
+                <i class="fas fa-users"></i>
+                <span>User Management</span>
+            </div>
+            <div class="nav-item" onclick="showSection('draws', this)">
+                <i class="fas fa-dice"></i>
+                <span>Live Draw Control</span>
+            </div>
+            <div class="nav-item" onclick="showSection('analytics', this)">
+                <i class="fas fa-chart-pie"></i>
+                <span>Analytics</span>
+            </div>
+            <div class="nav-item" onclick="showSection('activity', this)">
+                <i class="fas fa-history"></i>
+                <span>Activity Logs</span>
+            </div>
+        </div>
+
+        <button class="logout-btn" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i>
+            Logout
+        </button>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <!-- TOP BAR -->
+        <div class="top-bar">
+            <div class="page-title-section">
+                <h2 id="page-title">Dashboard Overview</h2>
+                <p id="page-subtitle">Welcome back, monitor your business in real-time</p>
+            </div>
+
+            <div class="top-bar-actions">
+                <div class="notification-badge">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge-dot"></span>
+                </div>
+                <div class="user-profile">
+                    <div class="user-avatar">A</div>
+                    <div>
+                        <div style="font-weight: 600;">Admin</div>
+                        <div style="font-size: 0.8rem; opacity: 0.7;">Super Admin</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE CONTENT -->
+        <div class="page-content">
+
+            <!-- DASHBOARD SECTION -->
+            <div id="dashboard" class="section active">
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon" style="background: rgba(99,102,241,0.1); color: var(--primary);">
+                                <i class="fas fa-users"></i>
+                            </div>
+                        </div>
+                        <div class="stat-content">
+                            <h4>Total Retailers</h4>
+                            <h2 id="total-users">0</h2>
+                            <div class="stat-trend trend-up">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>+12% from last month</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon" style="background: rgba(16,185,129,0.1); color: var(--success);">
+                                <i class="fas fa-rupee-sign"></i>
+                            </div>
+                        </div>
+                        <div class="stat-content">
+                            <h4>Today's Sale</h4>
+                            <h2 id="today-sale">₹0.00</h2>
+                            <div class="stat-trend trend-up">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>+8.2% from yesterday</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon" style="background: rgba(245,158,11,0.1); color: var(--warning);">
+                                <i class="fas fa-chart-pie"></i>
+                            </div>
+                        </div>
+                        <div class="stat-content">
+                            <h4>Net Profit (Today)</h4>
+                            <h2 id="today-profit">₹0.00</h2>
+                            <div class="stat-trend trend-up">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>Healthy margin</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon" style="background: rgba(239,68,68,0.1); color: var(--danger);">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                        </div>
+                        <div class="stat-content">
+                            <h4>Next Draw</h4>
+                            <h2 id="next-draw-time">--:--</h2>
+                            <div class="stat-trend">
+                                <i class="fas fa-hourglass-half"></i>
+                                <span>Auto-scheduled</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Draw History -->
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>
+                            <i class="fas fa-trophy" style="color: var(--warning);"></i>
+                            Draw History
+                        </h3>
+                        <div class="table-actions">
+                            <select id="dash-mode-filter"
+                                style="padding: 10px; border: 2px solid var(--border-color); border-radius: 10px; margin-right: 5px;">
+                                <option value="">All Modes</option>
+                                <option value="5">5 Min</option>
+                                <option value="10">10 Min</option>
+                                <option value="15">15 Min</option>
+                            </select>
+
+                            <input type="date" id="dash-date-filter"
+                                style="padding: 10px; border: 2px solid var(--border-color); border-radius: 10px;">
+                            <button class="btn btn-success btn-sm" onclick="loadDashHistory(true)">
+                                <i class="fas fa-calendar-day"></i> Today
+                            </button>
+                            <button class="btn btn-primary btn-sm" onclick="loadDashHistory(false)">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Draw ID</th>
+                                    <th>End Time</th>
+                                    <th>Winning Spot</th>
+                                    <th>Collection</th>
+                                    <th>Payout</th>
+                                    <th>Profit</th>
+                                    <th>RTP %</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dash-history-body">
+                                <tr>
+                                    <td colspan="7" style="text-align: center; padding: 40px;">
+                                        Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- USERS SECTION -->
+            <div id="users" class="section">
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>All Retailers</h3>
+                        <div class="table-actions">
+                            <div class="search-box">
+                                <input type="text" id="user-search" placeholder="Search users..."
+                                    onkeyup="filterUsers()">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <button class="btn btn-primary" onclick="openAddUserModal()">
+                                <i class="fas fa-user-plus"></i> Add New User
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-wrapper">
+                        <table id="users-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Username</th>
+                                    <th>Balance</th>
+                                    <th>Contact</th>
+                                    <th>Status</th>
+                                    <th style="text-align: center;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="6" style="text-align: center; padding: 40px;">
+                                        Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DRAWS SECTION -->
+            <div id="draws" class="section">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;">
+                    <div class="timer-card">
+                        <h3 style="margin: 0; font-size: 1.2rem; opacity: 0.9;">Next Draw Ends In
+                        </h3>
+                        <div class="timer-display" id="admin-timer">00:00</div>
+                        <p style="font-size: 1.1rem; margin: 0;">
+                            Collection: <strong id="live-collection" style="font-size: 1.3rem;">₹0.00</strong>
+                        </p>
+                    </div>
+
+                    <div
+                        style="background: white; border-radius: 16px; padding: 30px; border: 3px dashed var(--danger);">
+                        <div
+                            style="background: var(--danger); color: white; padding: 6px 12px; border-radius: 8px; display: inline-block; margin-bottom: 15px; font-weight: 700; font-size: 0.8rem;">
+                            <i class="fas fa-exclamation-triangle"></i> ADMIN OVERRIDE
+                        </div>
+                        <h3 style="margin-bottom: 10px;">Force Winning Spot</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 20px;">Select a specific
+                            spot to ensure it wins the current draw.</p>
+                        <div style="display: flex; gap: 12px;">
+                            <select id="manual-mode-select"
+                                style="padding: 12px; border: 2px solid var(--border-color); border-radius: 10px; font-size: 1rem; background-color: #f8f9fc;">
+                                <option value="5">5 Min</option>
+                                <option value="10">10 Min</option>
+                                <option value="15">15 Min</option>
+                            </select>
+
+                            <select id="manual-winner-select"
+                                style="flex: 1; padding: 12px; border: 2px solid var(--border-color); border-radius: 10px; font-size: 1rem;">
+                                <option value="">-- Select Spot --</option>
+                                <option value="A0">A0</option>
+                                <option value="B1">B1</option>
+                                <option value="C2">C2</option>
+                                <option value="D3">D3</option>
+                                <option value="E4">E4</option>
+                                <option value="F5">F5</option>
+                                <option value="G6">G6</option>
+                                <option value="H7">H7</option>
+                                <option value="I8">I8</option>
+                                <option value="J9">J9</option>
+                            </select>
+
+                            <button class="btn btn-danger" onclick="forceWinner()">
+                                <i class="fas fa-gavel"></i> Set Winner
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ANALYTICS SECTION -->
+            <div id="analytics" class="section">
+                <div class="table-card">
+                    <h3 style="margin-bottom: 20px;">
+                        <i class="fas fa-chart-bar" style="color: var(--info);"></i>
+                        Advanced Analytics
+                    </h3>
+                    <p style="color: var(--text-muted); padding: 40px; text-align: center;">
+                        Analytics dashboard coming soon with charts and graphs!
+                    </p>
+                </div>
+            </div>
+
+            <!-- ACTIVITY LOGS SECTION -->
+            <div id="activity" class="section">
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>
+                            <i class="fas fa-history" style="color: var(--info);"></i>
+                            Recent Activity Logs
+                        </h3>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Action</th>
+                                    <th>User</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody id="activity-logs">
+                                <tr>
+                                    <td colspan="4" style="text-align: center; padding: 40px;">No
+                                        recent activity</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ADD USER MODAL -->
+    <div id="add-user-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-plus" style="color: var(--primary);"></i> Add New Retailer
+                </h3>
+                <div class="close-modal" onclick="closeAddUserModal()">
+                    <i class="fas fa-times"></i>
+                </div>
+            </div>
+            <form id="add-user-form" onsubmit="submitNewUser(event)">
+                <div class="modal-body">
+                    <div class="input-group">
+                        <label>User ID (Username)</label>
+                        <input type="text" id="new-username" placeholder="e.g. Aman01" required
+                            pattern="^(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{4,}$">
+                        <small style="color: var(--text-muted); font-size: 0.85rem; display: block; margin-top: 4px;">
+                            Min 4 chars, 1 uppercase letter, 1 number
+                        </small>
+                    </div>
+                    <div class="input-group">
+                        <label>Password</label>
+                        <input type="password" id="new-password" placeholder="Secure password" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Store Address</label>
+                        <textarea id="new-address" placeholder="Store location..." required rows="2"></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label>Contact Number</label>
+                        <input type="tel" id="new-contact" placeholder="10-digit mobile number" required
+                            pattern="[0-9]{10}">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" style="background: var(--bg-light); color: var(--text-dark);"
+                        onclick="closeAddUserModal()">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check"></i> Create User
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- LEDGER MODAL -->
+    <div id="ledger-modal" class="modal-overlay">
+        <div class="modal-content" style="width: 900px; max-width: 95%;">
+            <div class="modal-header">
+                <h3>
+                    <i class="fas fa-wallet" style="color: var(--warning);"></i>
+                    Account Ledger: <span id="ledger-username" style="color: var(--primary);">--</span>
+                </h3>
+                <div class="close-modal" onclick="closeLedgerModal()">
+                    <i class="fas fa-times"></i>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 200px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">From
+                            Date</label>
+                        <input type="date" id="ledger-from"
+                            style="width: 100%; padding: 10px; border: 2px solid var(--border-color); border-radius: 10px;">
+                    </div>
+                    <div style="flex: 1; min-width: 200px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">To
+                            Date</label>
+                        <input type="date" id="ledger-to"
+                            style="width: 100%; padding: 10px; border: 2px solid var(--border-color); border-radius: 10px;">
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: flex-end;">
+                        <button class="btn btn-primary" onclick="fetchLedger()">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                        <button class="btn btn-warning" onclick="fetchLedger(true)">
+                            <i class="fas fa-calendar-day"></i> Today
+                        </button>
+                        <button class="btn btn-success" onclick="exportLedger()">
+                            <i class="fas fa-file-excel"></i> Export
+                        </button>
+                    </div>
+                </div>
+                <div class="table-wrapper" style="max-height: 400px; overflow-y: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Total Sale</th>
+                                <th>Winning</th>
+                                <th>Comm (9%)</th>
+                                <th>Net To Pay</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ledger-table-body">
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 30px;">Select
+                                    date range</td>
+                            </tr>
+                        </tbody>
+                        <tfoot id="ledger-table-footer"></tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="user-profile-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>User Profile</h3>
+                <div class="close-modal" onclick="closeUserProfile()">
+                    <i class="fas fa-times"></i>
+                </div>
+            </div>
+            <div class="modal-body">
+
+                <div class="profile-header">
+                    <div class="profile-avatar-large" id="p-avatar">U</div>
+                    <div class="profile-info">
+                        <h2 id="p-username">Username</h2>
+                        <p>Retailer ID: <span id="p-userid">S90X</span> | Status: <span id="p-status">Active</span></p>
+                    </div>
+                </div>
+
+                <div class="profile-stats-grid">
+                    <div class="p-stat-card" style="border-bottom: 4px solid var(--success);">
+                        <div class="p-stat-label">Current Balance</div>
+                        <div class="p-stat-value" id="p-balance" style="color: var(--success);">₹0.00</div>
+                    </div>
+                    <div class="p-stat-card" style="border-bottom: 4px solid var(--primary);">
+                        <div class="p-stat-label">Lifetime Sales</div>
+                        <div class="p-stat-value" id="p-sales">₹0.00</div>
+                    </div>
+                    <div class="p-stat-card" style="border-bottom: 4px solid var(--warning);">
+                        <div class="p-stat-label">Lifetime Comm. (9%)</div>
+                        <div class="p-stat-value" id="p-comm" style="color: var(--warning);">₹0.00</div>
+                    </div>
+                </div>
+
+                <div class="profile-grid-layout">
+                    <div class="profile-section">
+                        <h4><i class="fas fa-address-card"></i> Store Details</h4>
+                        <div class="detail-row">
+                            <span>Contact No:</span> <span id="p-contact">--</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>Joined Date:</span> <span id="p-joined">--</span>
+                        </div>
+                        <div class="detail-row" style="border:none; flex-direction:column; gap:5px;">
+                            <span>Address:</span>
+                            <span id="p-address"
+                                style="text-align:left; font-weight:normal; background:#f8f9fc; padding:8px; border-radius:4px;">--</span>
+                        </div>
+                    </div>
+
+                    <div class="profile-section">
+                        <h4><i class="fas fa-bolt"></i> Actions</h4>
+                        <div class="action-buttons-grid">
+                            <button class="action-btn" style="background: var(--success);" onclick="pActionAddFunds()">
+                                <i class="fas fa-plus-circle"></i> Add Funds
+                            </button>
+                            <button class="action-btn" style="background: var(--info);" onclick="pActionViewLedger()">
+                                <i class="fas fa-file-invoice"></i> Ledger
+                            </button>
+                            <button class="action-btn" style="background: var(--warning); color: #333;"
+                                onclick="pActionClearFunds()">
+                                <i class="fas fa-eraser"></i> Clear Bal
+                            </button>
+                            <button class="action-btn" id="p-block-btn" style="background: var(--danger);"
+                                onclick="pActionToggleBlock()">
+                                <i class="fas fa-ban"></i> Block
+                            </button>
+                            <button class="action-btn" style="background: #6f42c1; grid-column: span 2;"
+                                onclick="pActionSetRTP()">
+                                <i class="fas fa-percentage"></i> Set Payout % (RTP)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script src="/admin_dashboard.js"></script>
+</body>
+
+</html>
