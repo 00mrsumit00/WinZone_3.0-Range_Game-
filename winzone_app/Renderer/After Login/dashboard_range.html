@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>WinZone - Range Game</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #1f232a;
+            --bg-light: #2c313a;
+            --text-light: #f1f1f1;
+            --text-dark: #333333;
+            --accent-orange: #ff8c00;
+            --accent-green: #28a745;
+            --accent-red: #dc3545;
+            --accent-yellow: #ffc107;
+            --border-color: #444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* HEADER (50px) */
+        .app-header {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            padding: 5px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            height: 50px;
+            flex-shrink: 0;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-info img {
+            height: 35px;
+        }
+
+        .user-details span {
+            display: block;
+            font-size: 0.85rem;
+            line-height: 1.3;
+        }
+
+        .user-details strong {
+            color: var(--accent-green);
+        }
+
+        .time-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .real-time-clock {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #aaa;
+        }
+
+        .countdown-timer {
+            background-color: var(--accent-green);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            min-width: 100px;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s;
+        }
+
+        .countdown-timer.warning {
+            background-color: var(--accent-yellow);
+            color: #000;
+        }
+
+        .countdown-timer.frozen {
+            background-color: var(--accent-red);
+            color: white;
+            animation: blink 0.5s infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        /* NAVIGATION BAR (35px) */
+        .main-nav {
+            background-color: var(--accent-orange);
+            display: flex;
+            height: 35px;
+            flex-shrink: 0;
+        }
+
+        .main-nav button {
+            background: none;
+            border: none;
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0 12px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .main-nav button:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .main-nav button.logout {
+            margin-left: auto;
+            background: var(--accent-red);
+        }
+
+        /* RESULTS STRIP (40px) */
+        .results-strip {
+            display: flex;
+            height: 40px;
+            background-color: #000;
+            border-bottom: 2px solid var(--border-color);
+            padding: 5px;
+            gap: 5px;
+            flex-shrink: 0;
+            overflow-x: auto;
+        }
+
+        .result-badge {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 4px;
+            padding: 2px 5px;
+            min-width: 100px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .result-range-label {
+            font-size: 0.65rem;
+            opacity: 0.8;
+            margin-bottom: 2px;
+        }
+
+        .result-number {
+            font-size: 1.1rem;
+            font-weight: 900;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .result-number:empty::after {
+            content: 'Wait';
+            font-size: 0.8rem;
+            opacity: 0.6;
+        }
+
+        /* THOUSAND TABS (35px) */
+        .thousand-tabs {
+            display: flex;
+            gap: 3px;
+            background: #111;
+            padding: 3px;
+            height: 35px;
+            flex-shrink: 0;
+        }
+
+        .thousand-tab {
+            flex: 1;
+            border: none;
+            padding: 5px 0;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: bold;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: all 0.2s;
+            border-radius: 3px;
+        }
+
+        .thousand-tab:hover {
+            opacity: 1;
+        }
+
+        .thousand-tab.active {
+            opacity: 1;
+            border-bottom: 3px solid white;
+            transform: scale(1.05);
+        }
+
+        /* CONTROLS ROW (35px) */
+        .controls-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px 10px;
+            background: var(--bg-light);
+            border-bottom: 1px solid var(--border-color);
+            height: 35px;
+            flex-shrink: 0;
+        }
+
+        .lp-btn {
+            padding: 4px 12px;
+            background: var(--accent-orange);
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .lp-btn.active {
+            background: var(--accent-red);
+            box-shadow: 0 0 8px rgba(220, 53, 69, 0.6);
+        }
+
+        .amt-input {
+            width: 100px;
+            padding: 4px 8px;
+            text-align: center;
+            font-weight: bold;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .controls-row label {
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* MAIN GAME BODY */
+        .game-body {
+            display: grid;
+            grid-template-columns: 150px 1fr 200px;
+            /* Left sidebar | Grid | Right sidebar */
+            height: calc(100vh - 245px);
+            /* Total - (Header + Nav + Results + Tabs + Controls + Footer) */
+            overflow: hidden;
+            flex: 1;
+        }
+
+        /* LEFT SIDEBAR (150px) */
+        .hundred-sidebar {
+            background: var(--bg-light);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            padding: 5px;
+        }
+
+        .sidebar-header {
+            background: var(--accent-orange);
+            color: white;
+            padding: 8px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            text-align: center;
+            border-radius: 4px;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: background 0.2s;
+        }
+
+        .sidebar-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .sidebar-item.select-all-item {
+            background: #444;
+            color: white;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-item input[type="checkbox"] {
+            accent-color: var(--accent-orange);
+        }
+
+        /* CENTER: BETTING GRID */
+        .betting-grid-container {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            gap: 4px;
+            overflow: hidden;
+            /* Default: No scroll for single range */
+            background: var(--bg-dark);
+        }
+
+        /* When multiple ranges are selected, this class will be added */
+        .betting-grid-container.scrollable {
+            overflow-y: auto;
+        }
+
+        /* HEADER ROW STYLES (New) */
+        .header-row {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 4px;
+            flex-shrink: 0;
+            padding-bottom: 2px;
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background: var(--bg-dark);
+            /* Ensure it covers content when scrolling */
+        }
+
+        .universal-block-wrapper {
+            width: 134px;
+            /* 70px (label) + 60px (block) + 4px (gap) */
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+            border: 1px solid var(--accent-orange);
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2px;
+            flex-shrink: 0;
+        }
+
+        .header-cols-container {
+            display: flex;
+            flex: 1;
+            /* Matches grid-cells-row */
+            gap: 4px;
+            min-width: 0;
+        }
+
+        .col-block-cell {
+            flex: 1;
+            /* Matches grid-cell */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(255, 235, 59, 0.15);
+            border: 1px solid #555;
+            border-radius: 4px;
+            padding: 2px;
+            min-width: 0;
+        }
+
+        .header-label-small {
+            font-size: 0.65rem;
+            color: #ccc;
+            margin-bottom: 2px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .header-label-universal {
+            color: white;
+            font-weight: 900;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .grid-row-wrapper {
+            display: flex;
+            flex: 1;
+            /* Distribute height evenly */
+            gap: 4px;
+            min-height: 0;
+        }
+
+        /* When scrollable, rows should have fixed height, not flex */
+        .betting-grid-container.scrollable .grid-row-wrapper {
+            flex: none;
+            height: 55px;
+            /* Fixed height for comfort */
+        }
+
+        .row-label {
+            width: 70px;
+            background-color: rgba(255, 140, 0, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: var(--accent-orange);
+            flex-shrink: 0;
+        }
+
+        .block-input-cell {
+            width: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(255, 235, 59, 0.1);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 2px;
+            flex-shrink: 0;
+        }
+
+        .block-label-small {
+            font-size: 0.65rem;
+            color: #888;
+            margin-bottom: 2px;
+        }
+
+        .block-input {
+            width: 90%;
+            padding: 3px;
+            font-size: 0.85rem;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            background-color: #ffeb3b;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .grid-cells-row {
+            display: flex;
+            flex: 1;
+            gap: 4px;
+            min-width: 0;
+            /* Important for flex shrinking */
+        }
+
+        .grid-cell {
+            flex: 1;
+            /* Equal width distribution */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #15181e;
+            border: 1px solid #333;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            padding: 4px 2px;
+            min-width: 0;
+            /* Important for flex shrinking */
+        }
+
+        .grid-cell:hover {
+            border-color: var(--accent-orange);
+            background-color: #1a1d23;
+        }
+
+        .grid-cell.selected {
+            background-color: var(--accent-orange);
+            border-color: white;
+        }
+
+        .cell-number {
+            font-size: 0.7rem;
+            color: #777;
+            margin-bottom: 2px;
+            font-weight: bold;
+        }
+
+        .grid-cell.selected .cell-number {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .cell-input {
+            width: 100%;
+            padding: 2px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-align: center;
+            border: none;
+            background: transparent;
+            color: white;
+            outline: none;
+        }
+
+        .cell-input:focus {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .grid-cell.selected .cell-input {
+            color: white;
+        }
+
+        .cell-input::placeholder {
+            color: #555;
+            font-size: 0.8rem;
+        }
+
+        /* Filtered out cell style */
+        .grid-cell.dimmed {
+            opacity: 0.05;
+            pointer-events: none;
+            filter: grayscale(100%);
+        }
+
+        /* RIGHT SIDEBAR: STATS (200px) */
+        .stats-sidebar {
+            background-color: var(--bg-light);
+            border-left: 2px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            gap: 12px;
+            overflow-y: auto;
+        }
+
+        .stats-sidebar .sidebar-header {
+            background: linear-gradient(135deg, var(--accent-orange) 0%, #ff6b35 100%);
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 0;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .stat-card.total-card {
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.2) 0%, rgba(233, 30, 99, 0.2) 100%);
+            border-color: var(--accent-orange);
+            border-width: 2px;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--text-light);
+        }
+
+        .sidebar-spacer {
+            flex: 1;
+            /* Push submit button to bottom */
+        }
+
+        .sidebar-submit-btn {
+            background: linear-gradient(135deg, var(--accent-green) 0%, #1e7e34 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-transform: uppercase;
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        .sidebar-submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(40, 167, 69, 0.5);
+        }
+
+        .sidebar-submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .sidebar-submit-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        /* FOOTER (50px Increased) */
+        .app-footer {
+            height: 50px;
+            background-color: #f4f4f4;
+            color: #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            border-top: 2px solid var(--border-color);
+            flex-shrink: 0;
+            font-size: 0.9rem;
+        }
+
+        .footer-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .footer-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            max-width: 800px;
+            justify-content: flex-end;
+        }
+
+        .footer-actions input {
+            padding: 8px 12px;
+        }
+
+        .footer-btn {
+            padding: 8px 18px;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .claim-btn {
+            background-color: var(--accent-green);
+            color: white;
+            padding: 8px 18px;
+        }
+
+        .claim-btn:hover {
+            background-color: #1e7e34;
+        }
+
+        .back-btn {
+            background-color: #333;
+            color: white;
+        }
+
+        .back-btn:hover {
+            background-color: #000;
+        }
+
+        /* Loading Modal */
+        .loading-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading-modal h2 {
+            color: white;
+            font-size: 2rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER (50px) -->
+    <header class="app-header">
+        <div class="user-info">
+            <img src="../image/logo_1.png" alt="WinZone Logo">
+            <div class="user-details">
+                <span>Channel Service Operator Id: <strong id="display-username">SKILL GAME CENTRE</strong></span>
+                <span>Balance: <strong id="display-balance">₹0.00</strong></span>
+            </div>
+        </div>
+        <div class="time-info">
+            <div id="draw-end-time" class="real-time-clock">00:00:00 AM</div>
+            <div id="countdown-timer" class="countdown-timer">10:00</div>
+        </div>
+    </header>
+
+    <!-- NAVIGATION BAR (35px) -->
+    <nav class="main-nav">
+        <button id="submit-btn-nav"><i class="fa-solid fa-check"></i> Submit (F6)</button>
+        <button id="reset-btn"><i class="fa-solid fa-undo"></i> Reset (F2)</button>
+        <button id="result-btn"><i class="fa-solid fa-trophy"></i> Result (F9)</button>
+        <button onclick="location.reload()"><i class="fa-solid fa-sync"></i> Refresh (F5)</button>
+        <button class="logout" onclick="sessionStorage.clear(); window.location.href='../index.html'">
+            <i class="fa-solid fa-power-off"></i> Logout
+        </button>
+    </nav>
+
+    <!-- RESULTS STRIP (40px) -->
+    <div class="results-strip">
+        <div class="result-badge" data-range="0000" style="background: #e91e63;">
+            <span class="result-range-label"></span>
+            <span class="result-number" id="result-0">-</span>
+        </div>
+        <div class="result-badge" data-range="1000" style="background: #ff9800;">
+            <span class="result-range-label"></span>
+            <span class="result-number" id="result-1000">-</span>
+        </div>
+        <div class="result-badge" data-range="2000" style="background: #2196f3;">
+            <span class="result-range-label"></span>
+            <span class="result-number" id="result-2000">-</span>
+        </div>
+        <div class="result-badge" data-range="3000" style="background: #4caf50;">
+            <span class="result-range-label"></span>
+            <span class="result-number" id="result-3000">-</span>
+        </div>
+        <div class="result-badge" data-range="4000" style="background: #9c27b0;">
+            <span class="result-range-label"></span>
+            <span class="result-number" id="result-4000">-</span>
+        </div>
+        <div class="result-badge" data-range="5000" style="background: #00bcd4;">
+            <span class="result-range-label"></span>
+            <span class="result-number" id="result-5000">-</span>
+        </div>
+        <div class="result-badge" data-range="6000" style="background: #673ab7;">
+            <span class="result-range-label"></span>
+            <span class="result-number" id="result-6000">-</span>
+        </div>
+        <div class="result-badge" data-range="7000" style="background: #ff5722;">
+            <span class="result-range-label"></span>
+            <span class="result-number" id="result-7000">-</span>
+        </div>
+        <div class="result-badge" data-range="8000" style="background: #009688;">
+            <span class="result-range-label"></span>
+            <span class="result-number" id="result-8000">-</span>
+        </div>
+        <div class="result-badge" data-range="9000" style="background: #3f51b5;">
+            <span class="result-range-label"></span>
+            <span class="result-number" id="result-9000">-</span>
+        </div>
+    </div>
+
+    <!-- THOUSAND TABS (35px) -->
+    <div class="thousand-tabs">
+        <button class="thousand-tab" style="background:#e91e63" onclick="selectThousandRange(0)">0000-0999</button>
+        <button class="thousand-tab" style="background:#ff9800" onclick="selectThousandRange(1000)">1000-1999</button>
+        <button class="thousand-tab" style="background:#2196f3" onclick="selectThousandRange(2000)">2000-2999</button>
+        <button class="thousand-tab" style="background:#4caf50" onclick="selectThousandRange(3000)">3000-3999</button>
+        <button class="thousand-tab" style="background:#9c27b0" onclick="selectThousandRange(4000)">4000-4999</button>
+        <button class="thousand-tab" style="background:#00bcd4" onclick="selectThousandRange(5000)">5000-5999</button>
+        <button class="thousand-tab" style="background:#673ab7" onclick="selectThousandRange(6000)">6000-6999</button>
+        <button class="thousand-tab" style="background:#ff5722" onclick="selectThousandRange(7000)">7000-7999</button>
+        <button class="thousand-tab" style="background:#009688" onclick="selectThousandRange(8000)">8000-8999</button>
+        <button class="thousand-tab" style="background:#3f51b5" onclick="selectThousandRange(9000)">9000-9999</button>
+    </div>
+
+    <!-- CONTROLS ROW (35px) -->
+    <div class="controls-row">
+        <button id="lp-button" class="lp-btn" onclick="toggleLP()">LP</button>
+        <input type="number" id="block-amount-input" class="amt-input" placeholder="Qty">
+        <label><input type="radio" name="filter" value="all" checked> All</label>
+        <label><input type="radio" name="filter" value="even"> Even</label>
+        <label><input type="radio" name="filter" value="odd"> Odd</label>
+    </div>
+
+    <!-- MAIN GAME BODY (3-column layout) -->
+    <div class="game-body">
+
+        <!-- LEFT SIDEBAR (150px) -->
+        <aside class="hundred-sidebar">
+            <div class="sidebar-header">Range Selection</div>
+            <label class="sidebar-item select-all-item">
+                <input type="checkbox" id="select-all-hundreds" onchange="toggleAllHundreds()">
+                <span>Select All</span>
+            </label>
+            <div id="hundred-checkboxes-container">
+                <!-- Generated dynamically -->
+            </div>
+        </aside>
+
+        <!-- CENTER: BETTING GRID (Flex) -->
+        <section class="betting-grid-container" id="betting-grid-container">
+            <!-- 10 rows × 10 cells = 100 boxes (Generated dynamically) -->
+        </section>
+
+        <!-- RIGHT SIDEBAR: STATS (200px) -->
+        <aside class="stats-sidebar">
+            <div class="sidebar-header">
+                <i class="fa-solid fa-chart-bar"></i> Sum
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Total Spots</div>
+                <div class="stat-value" id="total-spots">0</div>
+            </div>
+
+            <!-- REPLACED Prize Pool & Service Charge with Total Quantity -->
+            <div class="stat-card">
+                <div class="stat-label">Total Qty</div>
+                <div class="stat-value" id="total-quantity" style="color: #4caf50;">0</div>
+            </div>
+
+            <div class="stat-card total-card">
+                <div class="stat-label">Total Amount</div>
+                <div class="stat-value" id="total-amount" style="color: #e91e63;">₹0</div>
+                <div style="font-size: 0.7rem; color: #555; margin-top: 2px;">(Qty × ₹2)</div>
+            </div>
+
+            <div class="sidebar-spacer"></div>
+
+            <button class="sidebar-submit-btn" id="submit-btn-sidebar">
+                <i class="fa-solid fa-paper-plane"></i> Submit Ticket
+            </button>
+        </aside>
+
+    </div>
+
+    <!-- FOOTER (50px) -->
+    <footer class="app-footer">
+        <div class="footer-info">
+            <span>Per Spot: <strong>₹2</strong></span>
+            <span>Prize: <strong>₹18 (9x)</strong></span>
+            <span>Active: Range Game (10 Min)</span>
+        </div>
+        <div class="footer-actions">
+            <input type="text" id="barcode-input" placeholder="Scan Barcode...">
+            <button class="footer-btn claim-btn" id="claim-btn">
+                <i class="fa-solid fa-gift"></i> Claim
+            </button>
+            <button class="footer-btn back-btn" onclick="window.location.href='../Before Login/classic_game.html'">
+                <i class="fa-solid fa-arrow-left"></i> Classic
+            </button>
+        </div>
+    </footer>
+
+    <!-- LOADING MODAL -->
+    <div class="loading-modal" id="loading-modal">
+        <h2><i class="fa-solid fa-spinner fa-spin"></i> Processing...</h2>
+    </div>
+
+    <script src="dashboard_range.js"></script>
+</body>
+
+</html>
