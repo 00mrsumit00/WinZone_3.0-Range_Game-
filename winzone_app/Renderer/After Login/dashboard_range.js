@@ -50,15 +50,20 @@ function setupTenMinuteTimer() {
 
 function updateTimerDisplay() {
     const now = new Date();
-    const timeString = now.toLocaleTimeString('en-US', {
-        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
-    });
-    document.getElementById('draw-end-time').textContent = timeString;
 
     const DRAW_INTERVAL_MS = 10 * 60 * 1000;
-    const currentTimeMs = now.getTime();
-    const nextDrawMs = Math.ceil(currentTimeMs / DRAW_INTERVAL_MS) * DRAW_INTERVAL_MS;
-    const timeRemainingMs = nextDrawMs - currentTimeMs;
+    const timeSinceEpochMs = now.getTime();
+    const timeRemainingMs = DRAW_INTERVAL_MS - (timeSinceEpochMs % DRAW_INTERVAL_MS);
+    const drawEndTimeMs = timeSinceEpochMs + timeRemainingMs;
+    const drawEndDate = new Date(drawEndTimeMs);
+
+    let hours = drawEndDate.getHours();
+    const minutes = drawEndDate.getMinutes().toString().padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+
+    document.getElementById('draw-end-time').textContent = `${hours.toString().padStart(2, '0')}:${minutes} ${ampm}`;
 
     const minutesRemaining = Math.floor(timeRemainingMs / 60000);
     const secondsRemaining = Math.floor((timeRemainingMs % 60000) / 1000);
@@ -568,9 +573,10 @@ async function handleSubmit() {
 
     const now = new Date();
     const DRAW_INTERVAL_MS = 10 * 60 * 1000;
-    const currentTimeMs = now.getTime();
-    const nextDrawMs = Math.ceil(currentTimeMs / DRAW_INTERVAL_MS) * DRAW_INTERVAL_MS;
-    const drawEndTime = new Date(nextDrawMs);
+    const timeSinceEpochMs = now.getTime();
+    const timeRemainingMs = DRAW_INTERVAL_MS - (timeSinceEpochMs % DRAW_INTERVAL_MS);
+    const drawEndTimeMs = timeSinceEpochMs + timeRemainingMs;
+    const drawEndTime = new Date(drawEndTimeMs);
 
     // Convert Quantity to Amount (Money) for Server
     // Server expects 'amount' to be the money to deduct

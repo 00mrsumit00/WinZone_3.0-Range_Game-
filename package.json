@@ -1,0 +1,8 @@
+{
+    "name": "winzone-launcher",
+    "version": "1.0.0",
+    "description": "Root launcher for WinZone application",
+    "scripts": {
+        "start": "start cmd /k \"cd winzone-server && title WinZone Result Server && node result_server.js\" && start cmd /k \"cd winzone-server && title WinZone API Server && node api_server.js\" && cd winzone_app && npm start"
+    }
+}
